@@ -17,7 +17,7 @@ const fixture = `<!doctype html><meta charset="utf-8">
     <section><h3>Sample Output 1</h3><pre>9\n</pre></section>
   </span>
 </div></main>`;
-const english = 'Problem Statement\n\nFind x_i.\nPrint the answer.\n\nConstraints\n\n- 1 <= N <= 10\n\nSample Input 1\n\n2 3\n  4 5\n\nSample Output 1\n\n9\n';
+const english = 'Problem Statement\n\nFind $x_i$.\nPrint the answer.\n\nConstraints\n\n- 1 <= N <= 10\n\nSample Input 1\n\n2 3\n  4 5\n\nSample Output 1\n\n9\n';
 let server;
 let browser;
 let origin;
@@ -100,7 +100,7 @@ test('clicking the button writes the current statement to the real browser clipb
   await page.locator('button.asc-copy-button').click();
   await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === 'Copied!');
   const text = await readClipboard(page);
-  assert.equal(text, english.replace('Find x_i.\nPrint the answer.', 'Updated statement.'));
+  assert.equal(text, english.replace('Find $x_i$.\nPrint the answer.', 'Updated statement.'));
   assert.equal(await page.locator('button.asc-copy-button').isEnabled(), true);
 });
 
@@ -137,4 +137,26 @@ test('clipboard permission failure is displayed and allows a successful retry', 
 test('pages without a statement get no copy button', async (t) => {
   const page = await openPage(t, '<!doctype html><p>Task list</p>');
   assert.equal(await page.locator('button.asc-copy-button').count(), 0);
+});
+
+test('raw AtCoder variables become inline LaTeX, including the input format', async (t) => {
+  const html = String.raw`<!doctype html><div id="task-statement"><p>Use <var>N</var> and <var>a_{i+1}</var>.</p><p>Limit <var>1 \le N,K \le 10^8</var>.</p><pre><var>N</var> <var>K</var>
+</pre></div>`;
+  const page = await openPage(t, html);
+  const text = await page.evaluate(() => AtCoderCopier.extractStatement());
+  assert.equal(text, 'Use $N$ and $a_{i+1}$.\n\nLimit $1 \\le N,K \\le 10^8$.\n\n$N$ $K$\n');
+});
+
+test('standalone KaTeX uses original LaTeX with inline and display delimiters', async (t) => {
+  const html = String.raw`<!doctype html><div id="task-statement"><p>Ratio <span class="katex"><span class="katex-mathml"><math><semantics><annotation encoding="application/x-tex">\frac{x_i}{10^8}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true">VISUAL_RATIO</span></span>.</p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><annotation encoding="application/x-tex">a^2 + b^2 = c^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true">VISUAL_EQUATION</span></span></span></div>`;
+  const page = await openPage(t, html);
+  const text = await page.evaluate(() => AtCoderCopier.extractStatement());
+  assert.equal(text, 'Ratio $\\frac{x_i}{10^8}$.\n\n$$\na^2 + b^2 = c^2\n$$');
+});
+
+test('sample copy controls are omitted while actual Copy text and sample whitespace remain', async (t) => {
+  const html = '<!doctype html><div id="task-statement"><section><h3>Sample Input 1<span class="btn btn-default btn-sm btn-copy ml-1" tabindex="0" data-target="pre-sample1">Copy</span></h3><div class="div-btn-copy"><span class="btn-copy btn-pre" tabindex="0" data-target="pre-sample1">Copy</span></div><pre id="pre-sample1">Copy  value\n\n\n  4  \n</pre></section><section><h3>Explanation</h3><p>Copy the answer.</p></section></div>';
+  const page = await openPage(t, html);
+  const text = await page.evaluate(() => AtCoderCopier.extractStatement());
+  assert.equal(text, 'Sample Input 1\n\nCopy  value\n\n\n  4  \n\nExplanation\n\nCopy the answer.');
 });

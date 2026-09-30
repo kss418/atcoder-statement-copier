@@ -8,16 +8,20 @@
       return preserveWhitespace ? text : text.replace(/\s+/g, " ");
     }
     if (node.nodeType !== Node.ELEMENT_NODE) return "";
-    if (node.matches("script, style, noscript, button")) return "";
+    if (node.matches("script, style, noscript, button, .btn-copy, .div-btn-copy")) return "";
 
     const style = getComputedStyle(node);
     if (node.hidden || style.display === "none" || style.visibility === "hidden") return "";
 
-    // KaTeX contains both accessible MathML and visual HTML. Read the
-    // original formula once instead of copying both rendered versions.
-    if (node.matches(".katex")) {
-      const formula = node.querySelector('annotation[encoding="application/x-tex"]');
-      if (formula) return formula.textContent;
+    // Read the original TeX once, before walking KaTeX's duplicate renderings.
+    // AtCoder also uses <var> before KaTeX finishes rendering.
+    if (node.matches("var, .katex, .katex-display")) {
+      const annotation = node.querySelector('annotation[encoding="application/x-tex"]');
+      const formula = (annotation?.textContent ?? (node.tagName === "VAR" ? node.textContent : "")).trim();
+      if (formula) {
+        const display = node.matches(".katex-display") || node.querySelector(".katex-display") !== null;
+        return display ? `\n\n$$\n${formula}\n$$\n\n` : `$${formula}$`;
+      }
     }
     if (node.tagName === "BR") return "\n";
     if (node.tagName === "IMG") return node.getAttribute("alt") ?? "";
