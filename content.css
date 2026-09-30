@@ -1,36 +1,8 @@
-/* Apply this class to the copy button created by button.js. */
-.asc-copy-button {
-  box-sizing: border-box;
+/* Button appearance comes from AtCoder's btn btn-default btn-sm classes. */
+.asc-title-actions {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  margin-bottom: 16px;
-  border: 1px solid #2563eb;
-  border-radius: 6px;
-  background-color: #2563eb;
-  color: #ffffff;
-  font: inherit;
-  font-size: 14px;
-  line-height: 1.4;
-  cursor: pointer;
-}
-
-.asc-copy-button:hover:not(:disabled) {
-  border-color: #1d4ed8;
-  background-color: #1d4ed8;
-}
-
-.asc-copy-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.asc-copy-button:focus-visible {
-  outline: 3px solid #93c5fd;
-  outline-offset: 2px;
-}
-
-.asc-copy-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  gap: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
 }

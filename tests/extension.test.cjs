@@ -98,7 +98,7 @@ test('clicking the button writes the current statement to the real browser clipb
   assert.equal(await page.locator('button.asc-copy-button').count(), 1);
   await page.evaluate(() => { document.querySelector('.lang-en p').textContent = 'Updated statement.'; });
   await page.locator('button.asc-copy-button').click();
-  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === '복사 완료!');
+  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === 'Copied!');
   const text = await readClipboard(page);
   assert.equal(text, english.replace('Find x_i.\nPrint the answer.', 'Updated statement.'));
   assert.equal(await page.locator('button.asc-copy-button').isEnabled(), true);
@@ -112,7 +112,7 @@ test('an empty statement reports failure without overwriting the clipboard', asy
     document.querySelector('.lang-en').replaceChildren();
   });
   await page.locator('button.asc-copy-button').click();
-  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === '복사 실패');
+  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === 'Copy failed');
   assert.equal(await readClipboard(page), 'KEEP_EXISTING_TEXT');
   assert.equal(await page.locator('button.asc-copy-button').isEnabled(), true);
 });
@@ -125,12 +125,12 @@ test('clipboard permission failure is displayed and allows a successful retry', 
     navigator.clipboard.writeText = async () => { throw new DOMException('Permission denied', 'NotAllowedError'); };
   });
   await page.locator('button.asc-copy-button').click();
-  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === '복사 실패');
+  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === 'Copy failed');
   assert.equal(await page.locator('button.asc-copy-button').isEnabled(), true);
   assert.match(await page.locator('button.asc-copy-button').getAttribute('title'), /Permission denied/);
   await page.evaluate(() => { navigator.clipboard.writeText = globalThis.originalWriteText; });
   await page.locator('button.asc-copy-button').click();
-  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === '복사 완료!');
+  await page.waitForFunction(() => document.querySelector('.asc-copy-button').textContent === 'Copied!');
   assert.equal(await readClipboard(page), english);
 });
 

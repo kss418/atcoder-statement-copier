@@ -9,21 +9,21 @@
     if (button.disabled) return;
     clearTimeout(resetTimer);
     button.disabled = true;
-    button.textContent = "복사 중…";
+    button.textContent = "Copying…";
     button.removeAttribute("title");
 
     try {
       // Extract at click time so switching language is reflected immediately.
       const text = copier.extractStatement();
       await copier.copyText(text);
-      button.textContent = "복사 완료!";
+      button.textContent = "Copied!";
     } catch (error) {
-      button.textContent = "복사 실패";
+      button.textContent = "Copy failed";
       button.title = error instanceof Error ? error.message : String(error);
     } finally {
       button.disabled = false;
       resetTimer = setTimeout(() => {
-        button.textContent = "지문 복사";
+        button.textContent = "Copy statement";
         button.removeAttribute("title");
       }, 2000);
     }
