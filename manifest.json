@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "AtCoder Statement Copier",
+  "description": "Copy problem statements from AtCoder.",
+  "version": "0.1.0",
+  "permissions": ["clipboardWrite"],
+  "content_scripts": [
+    {
+      "matches": ["https://atcoder.jp/contests/*/tasks/*"],
+      "js": ["button.js", "extractor.js", "clipboard.js", "main.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
